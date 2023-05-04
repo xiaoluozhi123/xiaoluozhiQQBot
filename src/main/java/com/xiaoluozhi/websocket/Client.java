@@ -2,8 +2,6 @@ package com.xiaoluozhi.websocket;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.xiaoluozhi.entity.Message;
-import com.xiaoluozhi.entity.Params;
-import com.xiaoluozhi.entity.Request;
 import com.xiaoluozhi.event.Subject;
 
 import javax.websocket.*;
@@ -15,6 +13,8 @@ import java.net.URI;
 public class Client {
     private Session session;
     private static Client INSTANCE;
+    // 重连标志
+    private volatile static boolean reConnection = false;
 
     // 构造方法
     private Client(String url) throws DeploymentException, IOException {
@@ -25,9 +25,23 @@ public class Client {
     public synchronized static boolean connect(String url) {
         try {
             INSTANCE = new Client(url);
+            reConnection = false;
             return true;
-        } catch (DeploymentException | IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.out.println("WebSocket连接失败，尝试重连");
+            return false;
+        }
+    }
+
+    // 重连方法
+    public synchronized static void reConnect() {
+        if (!reConnection) {
+            reConnection = true;
+            if (INSTANCE != null) {
+                INSTANCE.session = null;
+                INSTANCE = null;
+            }
+            ReConnection.reConnect();
         }
     }
 
@@ -51,18 +65,18 @@ public class Client {
     @OnClose
     public void onClose(Session session) {
         System.out.println("WebSocket连接关闭");
+        reConnect();
     }
 
     // 连接异常
     @OnError
     public void onError(Session session, Throwable t) {
         System.out.println("WebSocket连接异常");
+        reConnect();
     }
 
     // 发送消息
     public static void sendMessage(String json) {
         Client.INSTANCE.session.getAsyncRemote().sendText(json);
     }
-
-
 }
