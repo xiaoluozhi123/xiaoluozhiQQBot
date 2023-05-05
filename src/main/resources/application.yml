@@ -1,8 +1,8 @@
 # TODO Socket配置
 socket:
   # webSocket地址
-  url: ws://0.0.0.0:8809
+  url: ""
 
 # 机器人配置
 bot:
-  master: "qq号"
+  master: ""
