@@ -1,4 +1,4 @@
-package com.xiaoluozhi.entity;
+package com.xiaoluozhi.entity.botentity;
 
 import lombok.Data;
 

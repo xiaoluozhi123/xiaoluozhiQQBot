@@ -1,6 +1,6 @@
 package com.xiaoluozhi.event;
 
-import com.xiaoluozhi.entity.Message;
+import com.xiaoluozhi.entity.botentity.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;

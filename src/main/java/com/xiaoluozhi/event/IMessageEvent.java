@@ -1,6 +1,6 @@
 package com.xiaoluozhi.event;
 
-import com.xiaoluozhi.entity.Message;
+import com.xiaoluozhi.entity.botentity.Message;
 
 // TODO 功能接口
 public interface IMessageEvent {
