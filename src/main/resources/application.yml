@@ -6,3 +6,7 @@ socket:
 # 机器人配置
 bot:
   master: ""
+
+# buff相关配置
+buff:
+  cookie:

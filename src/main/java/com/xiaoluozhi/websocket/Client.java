@@ -3,6 +3,8 @@ package com.xiaoluozhi.websocket;
 import com.alibaba.fastjson2.JSONObject;
 import com.xiaoluozhi.entity.botentity.Message;
 import com.xiaoluozhi.event.Subject;
+import com.xiaoluozhi.function.report.AutoAddGroup;
+import com.xiaoluozhi.function.report.AutoFriend;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -58,6 +60,14 @@ public class Client {
         Message message = JSONObject.parseObject(json, Message.class);
         if ("message".equals(message.getPost_type())) {
             Subject.change(message);
+        } else if ("request".equals(message.getPost_type())) {
+            if ("friend".equals(message.getRequestType())) {
+                AutoFriend autoFriend = new AutoFriend();
+                autoFriend.onMessage(message);
+            } else if ("group".equals(message.getRequestType()) && "invite".equals(message.getSubType())) {
+                AutoAddGroup autoAddGroup = new AutoAddGroup();
+                autoAddGroup.onMessage(message);
+            }
         }
     }
 
@@ -71,6 +81,7 @@ public class Client {
     // 连接异常
     @OnError
     public void onError(Session session, Throwable t) {
+        t.printStackTrace();
         System.out.println("WebSocket连接异常");
         reConnect();
     }

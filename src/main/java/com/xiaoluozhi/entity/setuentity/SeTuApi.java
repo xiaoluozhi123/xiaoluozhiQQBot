@@ -2,6 +2,7 @@ package com.xiaoluozhi.entity.setuentity;
 
 import lombok.Data;
 
+// TODO 色图请求实体类
 @Data
 public class SeTuApi {
     // 0为非R18，1为R18，2为混合（在库中的分类，不等同于作品本身的 R18 标识）

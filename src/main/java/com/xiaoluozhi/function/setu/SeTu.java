@@ -2,10 +2,11 @@ package com.xiaoluozhi.function.setu;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xiaoluozhi.entity.botentity.Message;
 import com.xiaoluozhi.entity.setuentity.SeTuApi;
 import com.xiaoluozhi.entity.setuentity.SeTuResponse;
-import com.xiaoluozhi.entity.setuentity.SeTuUrl;
 import com.xiaoluozhi.event.IMessageEvent;
 import com.xiaoluozhi.util.SendUtil;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class SeTu implements IMessageEvent {
     // 接口地址
     private final String api = "https://api.lolicon.app/setu/v2";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 权重
     @Override
@@ -31,15 +33,19 @@ public class SeTu implements IMessageEvent {
             seTuApi.setNum(1);
 
             String result = HttpUtil.post(api, JSONObject.toJSONString(seTuApi), 5 * 1000);
-            SeTuResponse seTuResponse = JSONObject.parseObject(result, SeTuResponse.class);
+            SeTuResponse seTuResponse;
+            try {
+                seTuResponse = objectMapper.readValue(result, SeTuResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
             if (seTuResponse.getError().isEmpty()) {
-                JSONObject jsonObject = JSONObject.parseObject(seTuResponse.getData()[0]);
-                String urls = jsonObject.get("urls").toString();
-                SeTuUrl seTuUrl = JSONObject.parseObject(urls, SeTuUrl.class);
 
-                SendUtil.sendText(message,"获取涩图成功，正在发送，如没有发送成功则可能被拦截");
-                // 发送图片
-                SendUtil.sendImg(message, seTuUrl.getOriginal());
+                SendUtil.sendText(message, "获取涩图成功，正在发送，如没有发送成功则可能被拦截");
+                for (SeTuResponse.DataDTO dto : seTuResponse.getData()) {
+                    // 发送图片
+                    SendUtil.sendImg(message, dto.getUrls().getOriginal());
+                }
             } else {
                 SendUtil.sendText(message, "获取涩图失败");
             }
@@ -47,22 +53,26 @@ public class SeTu implements IMessageEvent {
         }
 
         if ("真涩图".equals(message.getMessage()) || "真色图".equals(message.getMessage())) {
-            if ("912119255".equals(message.getGroup_id())){
+            if ("912119255".equals(message.getGroup_id())) {
                 SeTuApi seTuApi = new SeTuApi();
                 seTuApi.setR18(1);
                 seTuApi.setExcludeAI(AiSwich.ai);
-                seTuApi.setNum(1);
+                seTuApi.setNum(5);
 
                 String result = HttpUtil.post(api, JSONObject.toJSONString(seTuApi), 5 * 1000);
-                SeTuResponse seTuResponse = JSONObject.parseObject(result, SeTuResponse.class);
+                SeTuResponse seTuResponse;
+                try {
+                    seTuResponse = objectMapper.readValue(result, SeTuResponse.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
                 if (seTuResponse.getError().isEmpty()) {
-                    JSONObject jsonObject = JSONObject.parseObject(seTuResponse.getData()[0]);
-                    String urls = jsonObject.get("urls").toString();
-                    SeTuUrl seTuUrl = JSONObject.parseObject(urls, SeTuUrl.class);
 
-                    SendUtil.sendText(message,"获取涩图成功，正在发送，如没有发送成功则可能被拦截");
-                    // 发送图片
-                    SendUtil.sendImg(message, seTuUrl.getOriginal());
+                    SendUtil.sendText(message, "获取涩图成功，正在发送，如没有发送成功则可能被拦截");
+                    for (SeTuResponse.DataDTO dto : seTuResponse.getData()) {
+                        // 发送图片
+                        SendUtil.sendImg(message, dto.getUrls().getOriginal());
+                    }
                 } else {
                     SendUtil.sendText(message, "获取涩图失败");
                 }

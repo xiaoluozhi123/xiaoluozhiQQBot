@@ -23,7 +23,7 @@ public class AiSwich implements IMessageEvent {
     public boolean onMessage(Message message) {
         if ("开启排除AI".equals(message.getMessage())) {
             if (masterQQ.equals(message.getUser_id())) {
-                ai = false;
+                ai = true;
                 SendUtil.sendText(message, "开启排除ai涩图成功");
                 return true;
             } else {
@@ -33,9 +33,9 @@ public class AiSwich implements IMessageEvent {
                 return true;
             }
         }
-        if ("关闭排除AI".equals(message.getMessage())) {
+        if ("关闭排除AI".equals(message.getMessage()) && "message".equals(message.getPost_type())) {
             if (masterQQ.equals(message.getUser_id())) {
-                ai = true;
+                ai = false;
                 SendUtil.sendText(message, "关闭排除ai涩图成功");
                 return true;
             } else {
