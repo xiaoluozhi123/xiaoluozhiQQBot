@@ -73,4 +73,23 @@ public class SendUtil {
 
         Client.sendMessage(JSONObject.toJSONString(paramsRequest));
     }
+
+    // 发送大图消息
+    public static void sendCardImg(Message message, String imgUrl) {
+        // 机器人回复消息
+        Request<Params> paramsRequest = new Request<>();
+        paramsRequest.setAction("send_msg");
+
+        Params params = new Params();
+        params.setUser_id(message.getUser_id());
+        params.setGroup_id(message.getGroup_id());
+
+        params.setMessage("[CQ:cardimage,file=" + imgUrl + "]");
+
+        params.setMessage_type(message.getMessage_type());
+        params.setAuto_escape(false);
+        paramsRequest.setParams(params);
+
+        Client.sendMessage(JSONObject.toJSONString(paramsRequest));
+    }
 }

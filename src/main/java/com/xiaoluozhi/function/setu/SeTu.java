@@ -16,6 +16,7 @@ public class SeTu implements IMessageEvent {
     // 接口地址
     private final String api = "https://api.lolicon.app/setu/v2";
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private Integer seTuNum = 1;
 
     // 权重
     @Override
@@ -26,11 +27,30 @@ public class SeTu implements IMessageEvent {
     // 消息处理
     @Override
     public boolean onMessage(Message message) {
-        if ("涩图".equals(message.getMessage()) || "色图".equals(message.getMessage())) {
+        boolean repOne = message.getMessage().matches("[涩色瑟][图][ ]*\\d{1,2}");
+        boolean repTwo = message.getMessage().matches("[涩色瑟][图]");
+        boolean zRepOne = message.getMessage().matches("[真][涩色瑟][图][ ]*\\d{1,2}");
+        boolean zRepTwo = message.getMessage().matches("[真][涩色瑟][图]");
+
+        if (repOne || repTwo) {
+            if (repOne) {
+                String key = message.getMessage().replaceAll("[涩色瑟][图][ ]*", "");
+                int num = Integer.parseInt(key);
+                if (num <= 5) {
+                    seTuNum = num;
+                } else {
+                    SendUtil.sendText(message, "一次最多获取5张涩图，不要太贪心哦！");
+                    return true;
+                }
+            } else {
+                seTuNum = 1;
+            }
+
+            System.out.println(seTuNum);
             SeTuApi seTuApi = new SeTuApi();
             seTuApi.setR18(R18Swich.r18);
             seTuApi.setExcludeAI(AiSwich.ai);
-            seTuApi.setNum(1);
+            seTuApi.setNum(seTuNum);
 
             String result = HttpUtil.post(api, JSONObject.toJSONString(seTuApi), 5 * 1000);
             SeTuResponse seTuResponse;
@@ -52,33 +72,44 @@ public class SeTu implements IMessageEvent {
             return true;
         }
 
-        if ("真涩图".equals(message.getMessage()) || "真色图".equals(message.getMessage())) {
-            if ("912119255".equals(message.getGroup_id())) {
-                SeTuApi seTuApi = new SeTuApi();
-                seTuApi.setR18(1);
-                seTuApi.setExcludeAI(AiSwich.ai);
-                seTuApi.setNum(5);
-
-                String result = HttpUtil.post(api, JSONObject.toJSONString(seTuApi), 5 * 1000);
-                SeTuResponse seTuResponse;
-                try {
-                    seTuResponse = objectMapper.readValue(result, SeTuResponse.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                if (seTuResponse.getError().isEmpty()) {
-
-                    SendUtil.sendText(message, "获取涩图成功，正在发送，如没有发送成功则可能被拦截");
-                    for (SeTuResponse.DataDTO dto : seTuResponse.getData()) {
-                        // 发送图片
-                        SendUtil.sendImg(message, dto.getUrls().getOriginal());
-                    }
+        if (zRepOne || zRepTwo) {
+            if (zRepOne) {
+                String key = message.getMessage().replaceAll("[真][涩色瑟][图][ ]*", "");
+                int num = Integer.parseInt(key);
+                if (num <= 5) {
+                    seTuNum = num;
                 } else {
-                    SendUtil.sendText(message, "获取涩图失败");
+                    SendUtil.sendText(message, "一次最多获取5张涩图，不要太贪心哦！");
+                    return true;
                 }
-                return true;
+            } else {
+                seTuNum = 1;
             }
-            return false;
+            System.out.println(seTuNum);
+
+            SeTuApi seTuApi = new SeTuApi();
+            seTuApi.setR18(1);
+            seTuApi.setExcludeAI(AiSwich.ai);
+            seTuApi.setNum(seTuNum);
+
+            String result = HttpUtil.post(api, JSONObject.toJSONString(seTuApi), 5 * 1000);
+            SeTuResponse seTuResponse;
+            try {
+                seTuResponse = objectMapper.readValue(result, SeTuResponse.class);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            if (seTuResponse.getError().isEmpty()) {
+
+                SendUtil.sendText(message, "获取涩图成功，正在发送，如没有发送成功则可能被拦截");
+                for (SeTuResponse.DataDTO dto : seTuResponse.getData()) {
+                    // 发送图片
+                    SendUtil.sendImg(message, dto.getUrls().getOriginal());
+                }
+            } else {
+                SendUtil.sendText(message, "获取涩图失败");
+            }
+            return true;
         }
 
         return false;

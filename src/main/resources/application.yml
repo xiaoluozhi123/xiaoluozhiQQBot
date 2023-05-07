@@ -1,12 +1,12 @@
 # TODO Socket配置
 socket:
   # webSocket地址
-  url: ""
+  url: "ws://175.24.206.88:8809/"
 
 # 机器人配置
 bot:
-  master: ""
+  master: "2686020087"
 
 # buff相关配置
 buff:
-  cookie:
+  cookie: csrf_token=IjBjOTU0YjY0NGRkMjM4MDU4YzYyYjk4NTdjODQ4NWIxOGRhZTBjMjUi.FzbUBQ.qNJ8fg8nof0ydy_0biQ7UVhbTK4; session=1-lvHxKG0FIXVfRm2qkEzRzCM-GXbpdCIWJLYFTgQKLaQX2035855885
